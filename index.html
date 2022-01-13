@@ -1,0 +1,141 @@
+<html lang="en">
+
+<head title="Ice Cream Parlor">
+</head>
+
+<body>
+
+    <form id="form">
+        <p id="error" hidden>Please fill out all fields.</p>
+        <h1 align="center">
+            Enter your name and Ice Cream flavor
+        </h1>
+        <label for="fullName">Full name: </label>
+        <input type="text" id="fullName" required>
+
+        <label for="iceCream">Ice Cream: </label>
+        <input type="text" id="iceCream" required>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <p id="displayedData" hidden>""</p>
+
+
+    <div id="editView" hidden>
+        <p id="editError" hidden>Please fill out all fields.</p>
+        <p align="center">
+            Edit
+        </p>
+        <label for="editName">Full name: </label>
+        <input type="text" id="editName">
+        <label for="editIceCream">Ice Cream: </label>
+        <input type="text" id="editIceCream">
+        <button id="saveButton" type="onclick">Save</button>
+    </div>
+
+</body>
+
+<script>
+
+    const arrayOfUserStats = []
+    const form = document.getElementById('form');
+    const error = document.getElementById('error');
+    const fullName = document.getElementById('fullName');
+    const iceCream = document.getElementById('iceCream');
+    const displayedData = document.getElementById('displayedData');
+    const editName = document.getElementById('editName')
+    const editIceCream = document.getElementById('editIceCream')
+    const saveButton = document.getElementById('saveButton')
+    const editError = document.getElementById('editError')
+
+    fullName.oninvalid = invalid;
+    iceCream.oninvalid = invalid;
+
+
+    form.onsubmit = submit;
+
+
+    function invalid(event) {
+        error.removeAttribute('hidden');
+    }
+
+    function submit(event) {
+
+        let userStats = {
+            fullName: '',
+            iceCream: '',
+            id: ''
+        };
+        userStats.fullName = fullName.value;
+        userStats.iceCream = iceCream.value;
+
+        var sameFlavor = (element) => element.iceCream == iceCream.value;
+
+        const regex = new RegExp(iceCream.value, 'i');
+
+        var regexedFlavor = (element) => regex.test(element.iceCream)
+        console.log(`regex ${arrayOfUserStats.some(regexedFlavor)}`)
+
+
+        if (!arrayOfUserStats.some(sameFlavor) && !arrayOfUserStats.some(regexedFlavor)) {
+
+            arrayOfUserStats.push(userStats)
+        } else {
+            alert('No duplicate ice cream flavors')
+        }
+
+        event.preventDefault();
+        fullName.value = ''
+        iceCream.value = ''
+        FetchAll();
+    }
+
+    FetchAll = function () {
+        var data = '';
+
+        if (arrayOfUserStats.length > 0) {
+            for (i = 0; i < arrayOfUserStats.length; i++) {
+                arrayOfUserStats[i].id = i
+                data += '<tr>';
+                data += '<td>' + (i + 1) + ')' + ' ' + arrayOfUserStats[i].fullName + ' : ' + arrayOfUserStats[i].iceCream + ' ' + '</td>';
+                data += '<td><button onclick="Edit(' + arrayOfUserStats[i].id + ')">Edit</button></td>';
+                data += '<td><button onclick="Delete(' + i + ')">Delete</button></td>';
+                data += '</tr>' + '<br>'
+            }
+        }
+        document.getElementById('displayedData').innerHTML = `${data}`;
+        displayedData.removeAttribute('hidden');
+    };
+
+    Delete = (item) => {
+        arrayOfUserStats.splice(item, 1)
+        FetchAll()
+    };
+
+    Edit = (item) => {
+
+        editView.removeAttribute('hidden')
+        editName.value = arrayOfUserStats[item].fullName
+        editIceCream.value = arrayOfUserStats[item].iceCream
+        var i = arrayOfUserStats[item].id
+
+        saveButton.onclick = () => {
+            if (editName.value !== '' && editIceCream.value !== '') {
+
+                event.preventDefault();
+                console.log(` index of i ${i}`)
+                arrayOfUserStats[i].fullName = editName.value
+                arrayOfUserStats[i].iceCream = editIceCream.value
+                editView.setAttribute('hidden', true)
+                i = ''
+                FetchAll()
+            } else {
+                alert('No blank inputs or duplicate Ice Cream names. No edits made.')
+            }
+        }
+    }
+
+</script>
+
+</html>
